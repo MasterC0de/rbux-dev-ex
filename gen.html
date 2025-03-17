@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Account Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        input { padding: 8px; margin: 10px; width: 250px; }
+        .hidden { display: none; }
+    </style>
+    <script>
+        let cooldown = false;
+
+        async function generateAccount() {
+            if (cooldown) {
+                alert("Please wait before generating another account.");
+                return;
+            }
+
+            cooldown = true;
+            setTimeout(() => cooldown = false, 60000); // 60-second cooldown
+
+            const randomUsername = "User" + Math.floor(Math.random() * 1000000);
+            const apiUrl = `https://users.roblox.com/v1/usernames/validate?request.username=${randomUsername}&request.birthday=2000-01-01&request.context=Signup`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.code === 0) {
+                    document.getElementById("username").value = randomUsername;
+                    document.getElementById("password").value = generatePassword();
+                    document.getElementById("formSection").classList.remove("hidden");
+                } else {
+                    generateAccount(); // Try again if username is taken
+                }
+            } catch (error) {
+                alert("Error checking username. Try again.");
+            }
+        }
+
+        function generatePassword() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let password = "";
+            for (let i = 0; i < 8; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return password + "moon";
+        }
+    </script>
+</head>
+<body>
+    <h1>Roblox Account Generator</h1>
+    <button onclick="generateAccount()">Generate Account</button>
+    <p>Cooldown: 60 seconds per request</p>
+
+    <div id="formSection" class="hidden">
+        <h2>Sign Up</h2>
+        <form action="https://www.roblox.com/signup" method="POST">
+            <input type="text" id="username" name="username" readonly><br>
+            <input type="password" id="password" name="password" readonly><br>
+            <label>Birthday:</label>
+            <input type="date" name="birthday" required><br>
+            <label>Gender:</label>
+            <select name="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select><br>
+            <p>Complete CAPTCHA on Roblox after submitting.</p>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+</body>
+</html>
