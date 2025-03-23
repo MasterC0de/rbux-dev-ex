@@ -3,28 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Distance Calculator</title>
+  <title>State Distance Calculator</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
     #map {
       height: 400px;
       margin-top: 20px;
     }
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-    }
   </style>
 </head>
 <body>
-  <h1>Distance Calculator</h1>
-  <p>Enter Latitude and Longitude of a destination:</p>
-  <input type="number" id="latitude" placeholder="Latitude" step="0.01">
-  <input type="number" id="longitude" placeholder="Longitude" step="0.01">
+  <h1>State Distance Calculator</h1>
+  <input type="text" id="currentLocation" placeholder="Your Current Location" readonly>
+  <input type="text" id="destinationState" placeholder="Enter State (e.g., 'Alabama')">
   <button id="calculate">Calculate</button>
-  <div id="results"></div>
+  <div id="results">
+    <p>Distance: <span id="distance">N/A</span></p>
+    <p>Travel Time: <span id="travelTime">N/A</span></p>
+    <p>Estimated Arrival: <span id="arrivalTime">N/A</span></p>
+  </div>
   <div id="map"></div>
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <script src="script.js"></script>
