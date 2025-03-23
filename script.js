@@ -7,11 +7,10 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 let marker;
 
 document.getElementById("calculate").addEventListener("click", () => {
-  const latitude = parseFloat(document.getElementById("latitude").value);
-  const longitude = parseFloat(document.getElementById("longitude").value);
+  const state = document.getElementById("destinationState").value.trim();
 
-  if (!latitude || !longitude) {
-    alert("Please enter valid coordinates.");
+  if (!state) {
+    alert("Please enter a state name.");
     return;
   }
 
@@ -24,30 +23,51 @@ document.getElementById("calculate").addEventListener("click", () => {
       const currentLat = position.coords.latitude;
       const currentLng = position.coords.longitude;
 
-      marker = L.marker([latitude, longitude]).addTo(map);
-      map.setView([latitude, longitude], 7);
+      document.getElementById("currentLocation").value = `${currentLat.toFixed(
+        2
+      )}, ${currentLng.toFixed(2)}`;
 
-      const distance = calculateDistance(
-        currentLat,
-        currentLng,
-        latitude,
-        longitude
-      );
+      fetch(
+        `https://nominatim.openstreetmap.org/search?state=${state}&country=United States&format=json`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.length === 0) {
+            alert("State not found.");
+            return;
+          }
 
-      const averageSpeed = 60; // Assuming average speed in miles per hour.
-      const travelTime = distance / averageSpeed;
-      const estimatedArrival = new Date(
-        Date.now() + travelTime * 60 * 60 * 1000
-      );
+          const destLat = parseFloat(data[0].lat);
+          const destLng = parseFloat(data[0].lon);
 
-      document.getElementById("results").innerHTML = `
-        <p>Distance: ${distance.toFixed(2)} miles</p>
-        <p>Estimated Travel Time: ${travelTime.toFixed(2)} hours</p>
-        <p>Estimated Arrival: ${estimatedArrival.toLocaleTimeString()}</p>
-      `;
+          marker = L.marker([destLat, destLng]).addTo(map);
+          map.setView([destLat, destLng], 6);
+
+          const distance = calculateDistance(
+            currentLat,
+            currentLng,
+            destLat,
+            destLng
+          );
+
+          const averageSpeed = 60; // Assuming speed in miles per hour
+          const travelTimeHours = distance / averageSpeed;
+          const travelTimeSeconds = travelTimeHours * 3600;
+          const arrivalTime = new Date(Date.now() + travelTimeSeconds * 1000);
+
+          document.getElementById("distance").textContent = `${distance.toFixed(
+            2
+          )} miles`;
+          document.getElementById("travelTime").textContent = `${travelTimeHours.toFixed(
+            2
+          )} hours`;
+          document.getElementById("arrivalTime").textContent =
+            arrivalTime.toLocaleTimeString();
+        })
+        .catch(() => alert("Error fetching state information."));
     },
     () => {
-      alert("Unable to retrieve your location.");
+      alert("Unable to retrieve your current location.");
     }
   );
 });
